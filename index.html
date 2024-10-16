@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Note Timer with Export</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #log {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #log li {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between; /* Use space-between to position items */
+            align-items: center;
+        }
+
+        #log span {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        #log input {
+            padding: 8px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        #controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #elapsedTime {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .remove-button {
+            background-color: #f44336;
+            margin-left: auto; /* Ensure it stays on the right */
+        }
+
+        .remove-button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Notes for Video Editor</h1>
+
+    <div id="controls">
+        <button id="startButton">Start Timer</button>
+        <button id="noteButton" disabled>Add Note</button>
+        <button id="exportButton" disabled>Export to .txt</button>
+    </div>
+
+    <ul id="log"></ul>
+
+    <div id="elapsedTime">Timer: 00:00:00</div>
+
+    <script>
+        let timer = null;
+        let startTime = 0;
+        let notesArray = [];
+
+        document.getElementById('startButton').addEventListener('click', () => {
+            if (timer === null) {
+                startTime = Date.now();
+                timer = setInterval(updateElapsedTime, 1000);
+                document.getElementById('noteButton').disabled = false;
+                document.getElementById('startButton').disabled = true;
+                document.getElementById('exportButton').disabled = false;
+            }
+        });
+
+        document.getElementById('noteButton').addEventListener('click', () => {
+            let currentTime = (Date.now() - startTime) / 1000;
+            addNoteEntry("Note at " + formatTime(currentTime));
+        });
+
+        document.getElementById('exportButton').addEventListener('click', () => {
+            exportNotesToTxt();
+        });
+
+        function addNoteEntry(text) {
+            let log = document.getElementById('log');
+            let li = document.createElement('li');
+            
+            // Create timestamp label
+            let timestampLabel = document.createElement('span');
+            timestampLabel.textContent = text + "         ";
+
+            // Create input for user to enter a note
+            let noteInput = document.createElement('input');
+            noteInput.type = 'text';
+            noteInput.placeholder = 'Type your note here';
+
+            // Create Remove button
+            let removeButton = document.createElement('button');
+            removeButton.textContent = 'Remove';
+            removeButton.className = 'remove-button';
+            removeButton.addEventListener('click', () => {
+                log.removeChild(li);
+                // Remove the note from notesArray
+                notesArray = notesArray.filter(note => note.inputElement !== noteInput);
+            });
+
+            // Append elements to the list item
+            li.appendChild(timestampLabel);
+            li.appendChild(noteInput);
+            li.appendChild(removeButton);
+            log.appendChild(li);
+
+            // Push this note (time and input field reference) to notesArray
+            notesArray.push({ time: text, inputElement: noteInput });
+        }
+
+        function updateElapsedTime() {
+            let currentTime = (Date.now() - startTime) / 1000;
+            document.getElementById('elapsedTime').textContent = "Timer: " + formatTime(currentTime);
+        }
+
+        function formatTime(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function exportNotesToTxt() {
+            let textContent = '';
+            notesArray.forEach(note => {
+                let noteText = note.inputElement.value || 'No note provided';
+                textContent += `${note.time} ${noteText}\n`;
+            });
+
+            // Create a downloadable .txt file
+            let blob = new Blob([textContent], { type: 'text/plain' });
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'notes.txt';
+            link.click();
+        }
+    </script>
+
+</body>
+</html>
