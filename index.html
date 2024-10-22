@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Note Timer with Export</title>
     <style>
+        /* Styles remain the same */
         body {
             font-family: Arial, sans-serif;
             margin: 40px;
@@ -47,11 +48,6 @@
             align-items: center;
         }
 
-        #log span {
-            font-weight: bold;
-            margin-right: 10px;
-        }
-
         #log input {
             padding: 8px;
             width: 300px;
@@ -87,6 +83,14 @@
         .remove-button:hover {
             background-color: #d32f2f;
         }
+
+        #log input.timestamp {
+            width: 60px; /* Adjust width to make it narrower */
+            display: inline-block;
+            margin-right: 10px; /* Adjust spacing between the timestamp and the note input */
+        }
+
+
     </style>
 </head>
 <body>
@@ -120,20 +124,25 @@
 
         document.getElementById('noteButton').addEventListener('click', () => {
             let currentTime = (Date.now() - startTime) / 1000;
-            addNoteEntry("Note at " + formatTime(currentTime));
+            addNoteEntry(formatTime(currentTime));
         });
 
         document.getElementById('exportButton').addEventListener('click', () => {
             exportNotesToTxt();
         });
 
-        function addNoteEntry(text) {
+        function addNoteEntry(time) {
             let log = document.getElementById('log');
             let li = document.createElement('li');
             
-            // Create timestamp label
-            let timestampLabel = document.createElement('span');
-            timestampLabel.textContent = text + "         ";
+            // Create input for timestamp (editable)
+            let timestampInput = document.createElement('input');
+            timestampInput.type = 'text';
+            timestampInput.value = time;
+            timestampInput.size = 8;
+            timestampInput.classList.add('timestamp');  // Add this class
+
+            
 
             // Create input for user to enter a note
             let noteInput = document.createElement('input');
@@ -150,14 +159,16 @@
                 notesArray = notesArray.filter(note => note.inputElement !== noteInput);
             });
 
+            
+
             // Append elements to the list item
-            li.appendChild(timestampLabel);
+            li.appendChild(timestampInput);
             li.appendChild(noteInput);
             li.appendChild(removeButton);
             log.appendChild(li);
 
             // Push this note (time and input field reference) to notesArray
-            notesArray.push({ time: text, inputElement: noteInput });
+            notesArray.push({ time: timestampInput, inputElement: noteInput });
         }
 
         function updateElapsedTime() {
@@ -176,7 +187,8 @@
             let textContent = '';
             notesArray.forEach(note => {
                 let noteText = note.inputElement.value || 'No note provided';
-                textContent += `${note.time} ${noteText}\n`;
+                let timestampText = note.time.value || 'No timestamp provided';
+                textContent += `${timestampText} ${noteText}\n`;
             });
 
             // Create a downloadable .txt file
