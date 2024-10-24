@@ -90,7 +90,24 @@
             margin-right: 10px; /* Adjust spacing between the timestamp and the note input */
         }
 
+        #bottomAddNote {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
 
+        #bottomAddNote:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -107,6 +124,9 @@
 
     <div id="elapsedTime">Timer: 00:00:00</div>
 
+    <!-- Add a second "Add Note" button that stays at the bottom -->
+    <button id="bottomAddNote" disabled>Add Note</button>
+
     <script>
         let timer = null;
         let startTime = 0;
@@ -117,15 +137,19 @@
                 startTime = Date.now();
                 timer = setInterval(updateElapsedTime, 1000);
                 document.getElementById('noteButton').disabled = false;
+                document.getElementById('bottomAddNote').disabled = false;
                 document.getElementById('startButton').disabled = true;
                 document.getElementById('exportButton').disabled = false;
             }
         });
 
-        document.getElementById('noteButton').addEventListener('click', () => {
+        function addNoteHandler() {
             let currentTime = (Date.now() - startTime) / 1000;
             addNoteEntry(formatTime(currentTime));
-        });
+        }
+
+        document.getElementById('noteButton').addEventListener('click', addNoteHandler);
+        document.getElementById('bottomAddNote').addEventListener('click', addNoteHandler);
 
         document.getElementById('exportButton').addEventListener('click', () => {
             exportNotesToTxt();
@@ -142,8 +166,6 @@
             timestampInput.size = 8;
             timestampInput.classList.add('timestamp');  // Add this class
 
-            
-
             // Create input for user to enter a note
             let noteInput = document.createElement('input');
             noteInput.type = 'text';
@@ -158,8 +180,6 @@
                 // Remove the note from notesArray
                 notesArray = notesArray.filter(note => note.inputElement !== noteInput);
             });
-
-            
 
             // Append elements to the list item
             li.appendChild(timestampInput);
