@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Note Timer with Export</title>
     <style>
-        /* Styles remain the same */ 
+        /* Styles remain the same */
         body {
             font-family: Arial, sans-serif;
             margin: 40px;
@@ -44,7 +45,7 @@
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             display: flex;
-            justify-content: space-between; /* Use space-between to position items */
+            justify-content: space-between;
             align-items: center;
         }
 
@@ -77,7 +78,7 @@
 
         .remove-button {
             background-color: #f44336;
-            margin-left: auto; /* Ensure it stays on the right */
+            margin-left: auto;
         }
 
         .remove-button:hover {
@@ -85,9 +86,9 @@
         }
 
         #log input.timestamp {
-            width: 60px; /* Adjust width to make it narrower */
+            width: 60px;
             display: inline-block;
-            margin-right: 10px; /* Adjust spacing between the timestamp and the note input */
+            margin-right: 10px;
         }
 
         #bottomAddNote {
@@ -124,7 +125,6 @@
 
     <div id="elapsedTime">Timer: 00:00:00</div>
 
-    <!-- Add a second "Add Note" button that stays at the bottom -->
     <button id="bottomAddNote" disabled>Add Note</button>
 
     <script>
@@ -159,36 +159,33 @@
             let log = document.getElementById('log');
             let li = document.createElement('li');
             
-            // Create input for timestamp (editable)
             let timestampInput = document.createElement('input');
             timestampInput.type = 'text';
             timestampInput.value = time;
             timestampInput.size = 8;
-            timestampInput.classList.add('timestamp');  // Add this class
+            timestampInput.classList.add('timestamp');
 
-            // Create input for user to enter a note
             let noteInput = document.createElement('input');
             noteInput.type = 'text';
             noteInput.placeholder = 'Type your note here';
 
-            // Create Remove button
             let removeButton = document.createElement('button');
             removeButton.textContent = 'Remove';
             removeButton.className = 'remove-button';
             removeButton.addEventListener('click', () => {
                 log.removeChild(li);
-                // Remove the note from notesArray
                 notesArray = notesArray.filter(note => note.inputElement !== noteInput);
             });
 
-            // Append elements to the list item
             li.appendChild(timestampInput);
             li.appendChild(noteInput);
             li.appendChild(removeButton);
             log.appendChild(li);
 
-            // Push this note (time and input field reference) to notesArray
             notesArray.push({ time: timestampInput, inputElement: noteInput });
+
+            // Automatically focus the note input field
+            noteInput.focus();
         }
 
         function updateElapsedTime() {
@@ -211,7 +208,6 @@
                 textContent += `${timestampText} ${noteText}\n`;
             });
 
-            // Create a downloadable .txt file
             let blob = new Blob([textContent], { type: 'text/plain' });
             let link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
