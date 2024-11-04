@@ -46,6 +46,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: move;
         }
 
         #log input {
@@ -157,6 +158,13 @@
         function addNoteEntry(time) {
             let log = document.getElementById('log');
             let li = document.createElement('li');
+            li.draggable = true; // Enable dragging on each note entry
+            
+            // Event listeners for drag-and-drop
+            li.addEventListener('dragstart', dragStart);
+            li.addEventListener('dragover', dragOver);
+            li.addEventListener('drop', drop);
+            li.addEventListener('dragend', dragEnd);
             
             let timestampInput = document.createElement('input');
             timestampInput.type = 'text';
@@ -183,7 +191,6 @@
 
             notesArray.push({ time: timestampInput, inputElement: noteInput });
 
-            // Automatically focus the note input field
             noteInput.focus();
         }
 
@@ -212,6 +219,36 @@
             link.href = URL.createObjectURL(blob);
             link.download = 'notes.txt';
             link.click();
+        }
+
+        let draggedItem = null;
+
+        function dragStart(e) {
+            draggedItem = this;
+            setTimeout(() => this.classList.add('invisible'), 0);
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+        }
+
+        function drop(e) {
+            e.preventDefault();
+            if (this !== draggedItem) {
+                const log = document.getElementById('log');
+                const draggedIndex = Array.from(log.children).indexOf(draggedItem);
+                const targetIndex = Array.from(log.children).indexOf(this);
+                if (draggedIndex < targetIndex) {
+                    log.insertBefore(draggedItem, this.nextSibling);
+                } else {
+                    log.insertBefore(draggedItem, this);
+                }
+            }
+        }
+
+        function dragEnd() {
+            this.classList.remove('invisible');
+            draggedItem = null;
         }
     </script>
 
