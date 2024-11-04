@@ -207,19 +207,27 @@
         }
 
         function exportNotesToTxt() {
-            let textContent = '';
-            notesArray.forEach(note => {
-                let noteText = note.inputElement.value || 'No note provided';
-                let timestampText = note.time.value || 'No timestamp provided';
-                textContent += `${timestampText} ${noteText}\n`;
-            });
+    let textContent = '';
+    const log = document.getElementById('log');
+    
+    // Iterate over each <li> in the current order in the DOM
+    log.querySelectorAll('li').forEach(li => {
+        const timestampInput = li.querySelector('input.timestamp');
+        const noteInput = li.querySelector('input[type="text"]:not(.timestamp)');
 
-            let blob = new Blob([textContent], { type: 'text/plain' });
-            let link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'notes.txt';
-            link.click();
-        }
+        let noteText = noteInput.value || 'No note provided';
+        let timestampText = timestampInput.value || 'No timestamp provided';
+        textContent += `${timestampText} ${noteText}\n`;
+    });
+
+    // Create a downloadable .txt file
+    let blob = new Blob([textContent], { type: 'text/plain' });
+    let link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'notes.txt';
+    link.click();
+}
+
 
         let draggedItem = null;
 
